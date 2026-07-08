@@ -1002,16 +1002,30 @@
         const equalizer = document.getElementById('equalizer');
         const scrollIndicator = document.getElementById('scrollIndicator');
 
-        // Fallback: video yoksa image göster
-        bannerVideo.onerror = function() {
+        // Fallback: video yoksa image göster (güçlendirilmiş)
+        function showBannerImg() {
             bannerVideo.style.display = 'none';
             bannerImg.style.display = 'block';
-        };
-
-        avatarVideo.onerror = function() {
+        }
+        function showAvatarImg() {
             avatarVideo.style.display = 'none';
             avatarImg.style.display = 'block';
-        };
+        }
+
+        bannerVideo.addEventListener('error', showBannerImg);
+        avatarVideo.addEventListener('error', showAvatarImg);
+
+        // Source elementi hata verirse de fallback
+        const bannerSource = bannerVideo.querySelector('source');
+        const avatarSource = avatarVideo.querySelector('source');
+        if (bannerSource) bannerSource.addEventListener('error', showBannerImg);
+        if (avatarSource) avatarSource.addEventListener('error', showAvatarImg);
+
+        // Yedek: Sayfa yüklendikten 1 saniye sonra video hâlâ yüklenmediyse img göster
+        setTimeout(function() {
+            if (bannerVideo.readyState === 0) showBannerImg();
+            if (avatarVideo.readyState === 0) showAvatarImg();
+        }, 1000);
 
         // Click to reveal
         overlay.addEventListener('click', function() {
